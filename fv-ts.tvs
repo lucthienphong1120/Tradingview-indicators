@@ -24,7 +24,7 @@ var label labelTp3   = na
 timezone = "Asia/Saigon" // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 fvgTog = input.string("Structural", title = "Show FVGs", options  = ["All","Structural","None"], group = "Fair Value Gaps", tooltip = "Note: 'All' Will cause less Historical AOIs to display.")
-upCol = input.color(#3daa45, title = "  Up Color  ", inline = "upCol", group = "Fair Value Gaps")
+upCol = input.color(#3daa45, title = "Up Color", inline = "upCol", group = "Fair Value Gaps")
 downCol = input.color(#ff033e, title = "Down Color", inline = "downCol", group = "Fair Value Gaps")
 upFillCol = input.color(color.rgb(0,0,0,100), title = "Fill", inline = "upCol", group = "Fair Value Gaps")
 downFillCol = input.color(color.rgb(0,0,0,100), title = "Fill", inline = "downCol", group = "Fair Value Gaps")
