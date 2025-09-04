@@ -1,8 +1,21 @@
 // This work is licensed under a Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) https://creativecommons.org/licenses/by-nc-sa/4.0/
 // ©Ltp1120
 
-//@version=5
-indicator("Fair Value + Trend Signals", "Fair Value + Trend Signals", overlay = true, max_boxes_count = 500, max_lines_count = 500, max_labels_count = 500)
+//@version=6
+indicator("Fair Value (FV) + Trend Signals (TS)", overlay = true, max_boxes_count = 500, max_lines_count = 500, max_labels_count = 500)
+
+// ==== GLOBAL VARIABLES ====
+var line lineEntry  = na
+var line stopLine   = na
+var line tpLine1    = na
+var line tpLine2    = na
+var line tpLine3    = na
+
+var label labelEntry = na
+var label labelStop  = na
+var label labelTp1   = na
+var label labelTp2   = na
+var label labelTp3   = na
 
 ///_____________________________________________________________________________________________________________________
 ///User Inputs
@@ -298,12 +311,12 @@ if trade_sesh and not trade_sesh[1] and e_tog
     line.new(bar_index,low-0.01, bar_index,high+0.01, extend = extend.both, color = ec, style = linestyle(e_style))
 
 src =  input(hl2, title="Source",group = "Trend Continuation Signals with TP & SL")
-Multiplier = input.float(2,title="Sensitivity (0.5 - 5)", step=0.1, defval=2, minval=0.5, maxval=5,group = "Trend Continuation Signals with TP & SL")
-atrPeriods = input.int(14,title="ATR Length", defval=10,group = "Trend Continuation Signals with TP & SL")
+Multiplier = input.float(2,title="Sensitivity (0.5 - 5)", step=0.1, minval=0.5, maxval=5,group = "Trend Continuation Signals with TP & SL")
+atrPeriods = input.int(14,title="ATR Length", group = "Trend Continuation Signals with TP & SL")
 atrCalcMethod= input.string("Method 1",title = "ATR Calculation Methods",options = ["Method 1","Method 2"],group = "Trend Continuation Signals with TP & SL")
-cloud_val = input.int(10,title = "Cloud Moving Average Length", defval = 10, minval = 5, maxval = 500,group = "Trend Continuation Signals with TP & SL")
+cloud_val = input.int(10,title = "Cloud Moving Average Length", minval = 5, maxval = 500,group = "Trend Continuation Signals with TP & SL")
 stopLossVal  = input.float(2.0, title="Stop Loss Percent (0 for Disabling)", minval=0,group = "Trend Continuation Signals with TP & SL")
-showBuySellSignals = input.bool(true,title="Show Buy/Sell Signals", defval=true,group = "Trend Continuation Signals with TP & SL")
+showBuySellSignals = input.bool(true,title="Show Buy/Sell Signals", group = "Trend Continuation Signals with TP & SL")
 showMovingAverageCloud = input.bool(true, title="Show Cloud MA",group = "Trend Continuation Signals with TP & SL")
 
 percent(nom, div) =>
@@ -323,18 +336,21 @@ sm2 = math.sum(m2, 1)
 cmoCalc = percent(sm1-sm2, sm1+sm2)
  
 hh = ta.highest(2)
-h1 = ta.dev(hh, 2) ? na : hh
+dev_hh = ta.dev(hh, 2)
+h1 = na(dev_hh) ? na : hh
 hpivot = fixnan(h1)
+
 ll = ta.lowest(2)
-l1 = ta.dev(ll, 2) ? na : ll
+dev_ll = ta.dev(ll, 2)
+l1 = na(dev_ll) ? na : ll
 lpivot = fixnan(l1)
  
 rsiCalc = ta.rsi(close,9)
 lowPivot =  lpivot  
 highPivot =  hpivot
  
-sup = rsiCalc < 25 and cmoCalc > 50  and lowPivot
-res = rsiCalc > 75 and cmoCalc < -50  and highPivot
+sup = rsiCalc < 25 and cmoCalc > 50 and not na(lowPivot)
+res = rsiCalc > 75 and cmoCalc < -50 and not na(highPivot)
 
 atr2 = ta.sma(ta.tr, atrPeriods)
 atr= atrCalcMethod == "Method 1" ? ta.atr(atrPeriods) : atr2
@@ -388,37 +404,58 @@ sindex= ta.valuewhen(shortCond, bar_index, 0)
  
 entryColor = pos==1? color.blue : color.purple
  
-if barstate.islast and pos!=0
-    lineEntry  = line.new(bar_index, pos>0?entryOfLongPosition :entryOfShortPosition , pos>0?lindex:sindex, pos>0?entryOfLongPosition :entryOfShortPosition , color=entryColor  )
-    line.delete(lineEntry[1])
+// Logic vẽ line/label
+if barstate.islast and pos != 0
+    // Xóa line/label cũ nếu có
+    if not na(lineEntry)
+        line.delete(lineEntry)
+    if not na(stopLine)
+        line.delete(stopLine)
+    if not na(tpLine1)
+        line.delete(tpLine1)
+    if not na(tpLine2)
+        line.delete(tpLine2)
+    if not na(tpLine3)
+        line.delete(tpLine3)
+    if not na(labelEntry)
+        label.delete(labelEntry)
+    if not na(labelStop)
+        label.delete(labelStop)
+    if not na(labelTp1)
+        label.delete(labelTp1)
+    if not na(labelTp2)
+        label.delete(labelTp2)
+    if not na(labelTp3)
+        label.delete(labelTp3)
 
-    stopLine  = line.new(bar_index, pos>0?stopLossForLong :stopLossForShort , pos>0?lindex:sindex, pos>0?stopLossForLong :stopLossForShort , color=color.red  )
-    tpLine1 = line.new(bar_index, pos>0?takeProfitForLong1R:takeProfitForShort1R, pos>0?lindex:sindex, pos>0?takeProfitForLong1R:takeProfitForShort1R, color=color.green)
-    tpLine2 = line.new(bar_index, pos>0?takeProfitForLong2R:takeProfitForShort2R, pos>0?lindex:sindex, pos>0?takeProfitForLong2R:takeProfitForShort2R, color=color.green)
-    tpLine3 = line.new(bar_index, pos>0?takeProfitForLong3R:takeProfitForShort3R, pos>0?lindex:sindex, pos>0?takeProfitForLong3R:takeProfitForShort3R, color=color.green)
-    line.delete(stopLine [1])
-    line.delete(tpLine1[1])
-    line.delete(tpLine2[1])
-    line.delete(tpLine3[1])
- 
-    labelEntry  = label.new(bar_index, pos>0?entryOfLongPosition :entryOfShortPosition , color=entryColor  , textcolor=#000000, style=label.style_label_left, text="Entry Price: " + str.tostring(pos>0?entryOfLongPosition :entryOfShortPosition ))
-    label.delete(labelEntry[1])    
- 
-    labelStop  = label.new(bar_index, pos>0?stopLossForLong :stopLossForShort , color=color.red  , textcolor=#000000, style=label.style_label_left, text="Stop Loss Price: " + str.tostring(math.round((pos>0?stopLossForLong :stopLossForShort) *100)/100))
-    labelTp1 = label.new(bar_index, pos>0?takeProfitForLong1R:takeProfitForShort1R, color=color.green, textcolor=#000000, style=label.style_label_left, text="(1-1) Take Profit: " +str.tostring(math.round((pos>0?takeProfitForLong1R:takeProfitForShort1R) * 100)/100))
-    labelTp2 = label.new(bar_index, pos>0?takeProfitForLong2R:takeProfitForShort2R, color=color.green, textcolor=#000000, style=label.style_label_left, text="(2-1) Take Profit: " + str.tostring(math.round((pos>0?takeProfitForLong2R:takeProfitForShort2R) * 100)/100))
-    labelTp3 = label.new(bar_index, pos>0?takeProfitForLong3R:takeProfitForShort3R, color=color.green, textcolor=#000000, style=label.style_label_left, text="(3-1) Take Profit: " + str.tostring(math.round((pos>0?takeProfitForLong3R:takeProfitForShort3R) * 100)/100))
-    label.delete(labelStop [1])
-    label.delete(labelTp1[1])
-    label.delete(labelTp2[1])
-    label.delete(labelTp3[1])    
+    // Vẽ line mới
+    lineEntry := line.new(bar_index, pos > 0 ? entryOfLongPosition : entryOfShortPosition, pos > 0 ? lindex : sindex, pos > 0 ? entryOfLongPosition : entryOfShortPosition,  color = entryColor)
+
+    stopLine := line.new(bar_index, pos > 0 ? stopLossForLong : stopLossForShort, pos > 0 ? lindex : sindex, pos > 0 ? stopLossForLong : stopLossForShort, color = color.red)
+
+    tpLine1 := line.new(bar_index, pos > 0 ? takeProfitForLong1R : takeProfitForShort1R, pos > 0 ? lindex : sindex, pos > 0 ? takeProfitForLong1R : takeProfitForShort1R, color = color.green)
+
+    tpLine2 := line.new(bar_index, pos > 0 ? takeProfitForLong2R : takeProfitForShort2R, pos > 0 ? lindex : sindex, pos > 0 ? takeProfitForLong2R : takeProfitForShort2R, color = color.green)
+
+    tpLine3 := line.new(bar_index, pos > 0 ? takeProfitForLong3R : takeProfitForShort3R, pos > 0 ? lindex : sindex, pos > 0 ? takeProfitForLong3R : takeProfitForShort3R, color = color.green)
+
+    // Vẽ label mới
+    labelEntry := label.new(bar_index, pos > 0 ? entryOfLongPosition : entryOfShortPosition, color = entryColor, textcolor = #000000, style = label.style_label_left, text = "Entry Price: " + str.tostring(pos > 0 ? entryOfLongPosition : entryOfShortPosition))
+
+    labelStop := label.new(bar_index, pos > 0 ? stopLossForLong : stopLossForShort, color = color.red, textcolor = #000000, style = label.style_label_left, text = "Stop Loss Price: " + str.tostring(math.round((pos > 0 ? stopLossForLong : stopLossForShort) * 100) / 100))
+
+    labelTp1 := label.new(bar_index, pos > 0 ? takeProfitForLong1R : takeProfitForShort1R, color = color.green, textcolor = #000000, style = label.style_label_left, text = "(1-1) Take Profit: " + str.tostring(math.round((pos > 0 ? takeProfitForLong1R : takeProfitForShort1R) * 100) / 100))
+
+    labelTp2 := label.new(bar_index, pos > 0 ? takeProfitForLong2R : takeProfitForShort2R, color = color.green, textcolor = #000000, style = label.style_label_left, text = "(2-1) Take Profit: " + str.tostring(math.round((pos > 0 ? takeProfitForLong2R : takeProfitForShort2R) * 100) / 100))
+
+    labelTp3 := label.new(bar_index, pos > 0 ? takeProfitForLong3R : takeProfitForShort3R, color = color.green, textcolor = #000000, style = label.style_label_left, text = "(3-1) Take Profit: " + str.tostring(math.round((pos > 0 ? takeProfitForLong3R : takeProfitForShort3R) * 100) / 100))
  
 changeCond = trend != trend[1]
 smaSrcHigh = ta.ema(high,cloud_val)
 smaSrcLow = ta.ema(low, cloud_val)
 [macdLine, signalLine, histLine] = ta.macd(close, 12, 26, 9)
-plot_high = plot(showMovingAverageCloud? smaSrcHigh : na, color = na, transp = 1, editable = false)
-plot_low  = plot(showMovingAverageCloud? smaSrcLow  : na, color = na, transp = 1, editable = false)
+plot_high = plot(showMovingAverageCloud? smaSrcHigh : na, color = na, editable = false)
+plot_low  = plot(showMovingAverageCloud? smaSrcLow  : na, color = na, editable = false)
 
 plotshape(longCond ? up : na, title="UpTrend Begins", location=location.belowbar, style=shape.circle, size=size.tiny, color=color.new(color.teal,transp = 50) )
 plotshape(longCond and showBuySellSignals ? up : na, title="Buy", text="Buy", location=location.belowbar, style=shape.labelup, size=size.tiny, color=color.new(color.teal,transp = 50), textcolor=color.white )
@@ -429,7 +466,7 @@ fill(plot_high, plot_low, color = (macdLine > 0) and (macdLine[0] > macdLine[1])
 fill(plot_high, plot_low, color = macdLine > 0 and macdLine[0] < macdLine[1]     ? color.new(color.aqua,transp = 85) : na, title = "Positive Cloud  Downtrend")
 fill(plot_high, plot_low, color = macdLine < 0 and macdLine[0] < macdLine[1]     ? color.new(color.red,transp = 85) : na, title = "Negative Cloud  Uptrend")
 fill(plot_high, plot_low, color = macdLine < 0 and macdLine[0] > macdLine[1]     ? color.new(color.red,transp = 85) : na, title = "Negative Cloud Downtrend")
-mPlot = plot(ohlc4, title="", style=plot.style_circles, linewidth=0)
+mPlot = plot(ohlc4, title="", style=plot.style_circles, linewidth=1)
 
 alertcondition(changeCond, title="Trend Direction Change ", message="Trend direction has changed ! ")
 
