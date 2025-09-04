@@ -1,5 +1,5 @@
 // This work is licensed under a Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) https://creativecommons.org/licenses/by-nc-sa/4.0/
-// ©LuxAlgo
+// ©Ltp1120
 
 //@version=5
 indicator("Inversion Fair Value Gaps (IFVG) + Smart Money Concepts (SMC)", "Inversion Fair Value Gaps (IFVG) + Smart Money Concepts (SMC)", overlay = true, max_boxes_count = 500, max_lines_count = 500, max_labels_count = 500)
@@ -1014,5 +1014,6 @@ if barstate.islast
 //Alert Options
 alertcondition(bull_signal, "Bullish Signal")
 alertcondition(bear_signal, "Bearish Signal")
+
 
 //---------------------------------------------------------------------------------------------------------------------}
