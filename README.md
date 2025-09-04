@@ -6,4 +6,4 @@
 
 ## Inversion Fair Value Gaps (IFVG) + Smart Money Concepts (SMC)
 
-<img width="1659" height="774" alt="image" src="https://github.com/user-attachments/assets/1c5986bb-1990-481f-94e1-9c0ea7723159" />
+<img width="1790" height="778" alt="image" src="https://github.com/user-attachments/assets/892e3b11-253f-44e1-8198-2fe934d86a91" />
