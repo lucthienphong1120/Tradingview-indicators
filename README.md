@@ -2,7 +2,7 @@
 
 ## Fair Value (FV) + Trend Signals (TS)
 
-<img width="1654" height="757" alt="image" src="https://github.com/user-attachments/assets/f89c342a-6579-41f0-b57d-d729962647c6" />
+<img width="1778" height="789" alt="image" src="https://github.com/user-attachments/assets/21581c8c-3394-45d8-9373-0744a1dafea8" />
 
 ## Inversion Fair Value Gaps (IFVG) + Smart Money Concepts (SMC)
 
