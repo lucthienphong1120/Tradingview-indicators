@@ -11,4 +11,4 @@ Tradingview Pine Script custom indicators
 + Inversion Fair Value Gaps (IFVG) [LuxAlgo]
 + Smart Money Concepts (SMC) [LuxAlgo]
 
-<img width="1790" height="778" alt="image" src="https://github.com/user-attachments/assets/892e3b11-253f-44e1-8198-2fe934d86a91" />
+<img width="1785" height="802" alt="image" src="https://github.com/user-attachments/assets/1bdaa905-415d-46cd-a06e-1df4bd741c7f" />
