@@ -4,6 +4,8 @@
 //@version=6
 indicator("Inversion Fair Value Gaps (IFVG) + Smart Money Concepts (SMC)", overlay = true, max_boxes_count = 500, max_lines_count = 500, max_labels_count = 500)
 
+//-------------------------------SMC-----------------------------------------------------------------------------------}
+
 //---------------------------------------------------------------------------------------------------------------------}
 //CONSTANTS & STRINGS & INPUTS
 //---------------------------------------------------------------------------------------------------------------------{
@@ -844,9 +846,8 @@ alertcondition(currentAlerts.equalLows,                 'Equal Lows',           
 alertcondition(currentAlerts.bullishFairValueGap,       'Bullish FVG',                  'Bullish FVG formed')
 alertcondition(currentAlerts.bearishFairValueGap,       'Bearish FVG',                  'Bearish FVG formed')
 
-//---------------------------------------------------------------------------------------------------------------------}
+//------------------------IFVG---------------------------------------------------------------------------------------}
 
-//---------------------------------------------------------------------------------------------------------------------}
 //Settings
 //---------------------------------------------------------------------------------------------------------------------{
 disp_num = input.int(5, maxval = 100, minval = 1, title = "Show Last", tooltip = "Specifies the amount of most recent inversion FVG to display in Bullish/Bearish pairs, starting at the current and looking back.")
@@ -963,18 +964,6 @@ send_it(_ary) => // Draws Everything on the Chart
                 label_maker(stuff.x,stuff.y,stuff.dir)
 
 //---------------------------------------------------------------------------------------------------------------------}
-//Delete drawings
-//---------------------------------------------------------------------------------------------------------------------{
-for boxes in box.all
-    box.delete(boxes)
-
-for lines in line.all
-    line.delete(lines)
-
-for labels in label.all
-    label.delete(labels)
-
-//---------------------------------------------------------------------------------------------------------------------}
 //Data Arrays
 //---------------------------------------------------------------------------------------------------------------------{
 var bull_fvg_ary = array.new<fvg>(na) // FVG Data, Not all will be Drawn
@@ -1015,6 +1004,4 @@ if barstate.islast
 alertcondition(bull_signal, "Bullish Signal")
 alertcondition(bear_signal, "Bearish Signal")
 
-
 //---------------------------------------------------------------------------------------------------------------------}
-
